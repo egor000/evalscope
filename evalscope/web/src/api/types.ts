@@ -57,6 +57,73 @@ export interface PerfMetrics {
   summary: PerfMetricsSummary
 }
 
+export interface SequentialTokenUsage {
+  requests?: number
+  input_tokens?: number
+  output_tokens?: number
+  total_tokens?: number
+}
+
+export interface SequentialStopMetadata {
+  method?: string
+  strategy?: string
+  verdict?: string
+  decision?: string
+  decided_by?: string
+  decision_explanation?: string
+  target?: number
+  target_range?: number[]
+  grey_zone?: {
+    lower?: number
+    upper?: number
+    center?: number
+    lower_margin?: number
+    upper_margin?: number
+  }
+  p_lo?: number
+  p_hi?: number
+  p0?: number
+  p1?: number
+  mean?: number
+  ci_lower?: number
+  ci_upper?: number
+  prune_ratio?: number
+  sample_budget?: number
+  samples_scored?: number
+  samples_total?: number
+  samples_skipped?: number
+  fresh_predictions?: number
+  free_samples?: number
+  risk_assessment?: string
+  stopped_early?: boolean
+  sprt_llr?: number
+  sprt_decision?: string
+  cs_decision?: string
+  sprt_success_hypotheses?: number[]
+  sprt_h0_success_rate?: number
+  sprt_h1_success_rate?: number
+  interval_type?: string
+  bayes_prior?: {
+    distribution?: string
+    alpha?: number
+    beta?: number
+  }
+  bayes_posterior_below?: number
+  bayes_posterior_within?: number
+  bayes_posterior_above?: number
+  bayes_success_credible_interval?: number[]
+  bayes_decision_thresholds?: {
+    above?: number
+    below?: number
+    within?: number
+  }
+  token_usage?: {
+    consumed?: SequentialTokenUsage
+    fresh_predictions?: SequentialTokenUsage
+    counted_from?: string
+  }
+}
+
 export interface ReportData {
   name: string
   dataset_name: string
@@ -64,6 +131,10 @@ export interface ReportData {
   score: number
   analysis: string
   metrics: MetricData[]
+  metadata?: {
+    sequential_stop?: SequentialStopMetadata
+    [key: string]: unknown
+  } | null
   perf_metrics?: PerfMetrics
 }
 

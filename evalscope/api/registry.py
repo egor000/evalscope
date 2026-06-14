@@ -195,10 +195,27 @@ def create_evaluator(
     """
     Instantiate the appropriate :class:`Evaluator` for the given benchmark.
 
-    Looks up ``benchmark.name`` in :data:`EVALUATOR_REGISTRY`; if not found,
-    falls back to the ``'default'`` entry (i.e. :class:`DefaultEvaluator`).
+    Selection order:
+
+    1. If an ``early_stop`` block is present in this dataset's ``dataset_args``,
+       use the generic sequential early-stopping evaluator (registered as
+       ``'sequential'``) regardless of benchmark.
+    2. Otherwise look up ``benchmark.name`` in :data:`EVALUATOR_REGISTRY`.
+    3. Falls back to the ``'default'`` entry (i.e. :class:`DefaultEvaluator`).
     """
-    evaluator_cls = EVALUATOR_REGISTRY.get(benchmark.name) or EVALUATOR_REGISTRY['default']
+    # Route on key *presence*, not truthiness: an empty ``early_stop`` block
+    # ({}) is a misconfiguration that must reach SequentialEvaluator and raise,
+    # not silently fall back to a full evaluation.
+    ds_args = (task_config.dataset_args.get(benchmark.name) or {}) if task_config is not None else {}
+    if 'early_stop' in ds_args:
+        evaluator_cls = EVALUATOR_REGISTRY['sequential']
+    else:
+        evaluator_cls = EVALUATOR_REGISTRY.get(benchmark.name) or EVALUATOR_REGISTRY['default']
+
+    # The sequential evaluator reads and validates ``early_stop`` from
+    # ``task_config`` in its own ``__init__`` (which runs here, before run.py
+    # overwrites ``dataset_args`` with benchmark metadata), raising eagerly on
+    # an unsupported or misconfigured setup so no inference cost is wasted.
     return evaluator_cls(
         benchmark=benchmark,
         model=model,

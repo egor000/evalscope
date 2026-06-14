@@ -77,6 +77,19 @@ class DataAdapter(LLMJudgeMixin, SandboxMixin, ABC):
     def load_dataset(self) -> DatasetDict:
         pass
 
+    def get_sampling_segments(self, sample: Optional[Sample], subset: str) -> Dict[str, Any]:
+        """Return adapter-defined segment values that sequential sampling may use.
+
+        The default exposes EvalScope's existing subset and report category
+        concepts. Benchmarks can override this to add dimensions such as
+        difficulty, question type, document category, release bucket, or source.
+        """
+        category = self.category_map.get(subset, 'default')
+        return {
+            'subset': subset,
+            'category': category,
+        }
+
     @abstractmethod
     def run_inference(self, model: Model, sample: Sample, output_dir: str, **kwargs) -> TaskState:
         pass

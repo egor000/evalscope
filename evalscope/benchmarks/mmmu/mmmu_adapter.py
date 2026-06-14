@@ -47,6 +47,29 @@ SUBSET_LIST = [
     'Sociology',
 ]
 
+DOMAIN_CAT2SUB_CAT = {
+    'Art & Design': ['Art', 'Art_Theory', 'Design', 'Music'],
+    'Business': ['Accounting', 'Economics', 'Finance', 'Manage', 'Marketing'],
+    'Science': ['Biology', 'Chemistry', 'Geography', 'Math', 'Physics'],
+    'Health & Medicine': [
+        'Basic_Medical_Science',
+        'Clinical_Medicine',
+        'Diagnostics_and_Laboratory_Medicine',
+        'Pharmacy',
+        'Public_Health',
+    ],
+    'Humanities & Social Science': ['History', 'Literature', 'Psychology', 'Sociology'],
+    'Tech & Engineering': [
+        'Agriculture',
+        'Architecture_and_Engineering',
+        'Computer_Science',
+        'Electronics',
+        'Energy_and_Power',
+        'Materials',
+        'Mechanical_Engineering',
+    ],
+}
+
 MULT_CHOICE_PROMPT = MultipleChoiceTemplate.SINGLE_ANSWER_COT
 
 OPEN_PROMPT = """
@@ -130,6 +153,7 @@ class MMMUAdapter(VisionLanguageAdapter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.category_map = {sub_cat: cat for cat, sub_cats in DOMAIN_CAT2SUB_CAT.items() for sub_cat in sub_cats}
 
     def record_to_sample(self, record: Dict[str, Any]) -> Sample:
         question_type = record['question_type']

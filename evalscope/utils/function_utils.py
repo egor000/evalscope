@@ -310,6 +310,7 @@ def run_in_threads_with_progress(
     skip_failed: bool = False,
     initial: int = 0,
     total: Optional[int] = None,
+    should_stop: Optional[Callable[[], bool]] = None,
 ) -> List[R]:
     """
     Execute a collection of tasks concurrently with a ThreadPoolExecutor while
@@ -344,6 +345,10 @@ def run_in_threads_with_progress(
         initial: Number of already-completed items (e.g. loaded from cache). The progress
             bar will start at this offset so the full work is visible.
         total: Override the displayed total. Defaults to ``initial + len(items)``.
+        should_stop: Optional predicate checked (in the main thread) after each completed
+            item. Once it returns True, no further items are submitted; tasks already
+            in flight (up to ``max_workers``) are allowed to finish. Use this to stop a
+            stream early once a decision has been reached, without cancelling running work.
 
     Returns:
         A list of results in the original input order.
@@ -423,11 +428,13 @@ def run_in_threads_with_progress(
                         ordered_results[item_index] = result
                         if on_result is not None:
                             on_result(items[item_index], result)
-                        _try_submit_next()  # keep the window full on success
+                        if should_stop is None or not should_stop():
+                            _try_submit_next()  # keep the window full on success
                     except Exception as error:
                         if on_error is not None:
                             on_error(items[item_index], error)  # may re-raise
-                            _try_submit_next()  # error was tolerated, keep going
+                            if should_stop is None or not should_stop():
+                                _try_submit_next()  # error was tolerated, keep going
                         else:
                             raise
                     finally:

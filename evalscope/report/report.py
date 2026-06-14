@@ -145,6 +145,7 @@ class Report(BaseModel):
     score: float = 0.0
     metrics: List[Metric] = Field(default_factory=list)
     analysis: str = 'N/A'
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
     # compare=False equivalent: excluded from model equality via model_config
     perf_metrics: Optional[Dict[str, Any]] = Field(default=None)
 

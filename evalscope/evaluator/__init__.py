@@ -3,3 +3,4 @@
 from .batch_reviewer import BatchReviewer
 from .evaluator import DefaultEvaluator
 from .perf_collector import PerfCollector
+from .sequential import SequentialEvaluator
