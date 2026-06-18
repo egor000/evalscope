@@ -374,3 +374,6 @@ Key fields:
 | `evalscope/api/registry.py` | Routes datasets with an `early_stop` block to the sequential evaluator. |
 | `tests/test_sequential_stopping.py` | Unit and integration tests. |
 | `examples/benchmarks/early_stop_sequential.py` | Runnable example. |
+
+## Forked from
+SHA of evalscope commit i fork from e1b4d09aa4a5bbdab7fa5eeaf567d74c8469a6e7
